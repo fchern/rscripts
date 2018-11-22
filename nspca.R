@@ -47,7 +47,7 @@ tagName <- args$tag
 basketName <- args$basket
 windowName <- args$window
 
-filename <- glue("/home/fchern/test/{branchName}/{tagName}/{basketName}/{windowName}/historicalReturns.csv")
+filename <- glue("/home/fchern/test/{branchName}/{tagName}/{basketName}/{windowName}/historical.csv")
 
 print(glue("we are loading X from {filename}"))
 
@@ -62,26 +62,52 @@ print("number of columns")
 numCol = ncol(MASS::Boston)
 print(numCol)
 
+# ------------------------------
+# main course
+# ------------------------------
+set.seed(1)
+
 # ignore 1/3 of the input high dimension
-# make sure the input data is already scaled!
+dimToKeep = round(numCol/args$keep)
+
+# ++++++ make sure the input data is already scaled! +++++++
 pca <- nsprcomp(MASS::Boston,
-                           k = c(round(numCol/args$keep),4, 2, 2), 
+                           k = c(dimToKeep,4, 2, 2), 
                            nneg = TRUE, 
                            scale. = FALSE, 
                            nrestart = 10, 
                            em_tol = 1e-4, 
-                           verbosity = 1)$rotation
+                           verbosity = 1)
 
 rotationMatrix = pca$rotation
 
 rn <- row.names(rotationMatrix)
 rotation <- as.data.frame(rotationMatrix)
+
+
+# ------------------------------
+# some basic sanity check for the solution
+# ------------------------------
+print("dot product between PC1 and PC2")
+print(sum(rotation$PC1 * rotation$PC2))
+print(as.matrix(rotation) %*% t(as.matrix(rotation)))
 print(rotation$PC1)
 row.names(rotation) = rn
 print(rotation)
 
-outputPngFilename <- glue("/home/fchern/test/{branchName}/{tagName}/{basketName}/{windowName}/1st_comp.png")
+# ------------------------------
+# writing output to csv
+# ------------------------------
+#outputCsvFilename <- glue("/home/fchern/test/{branchName}/{tagName}/{basketName}/{windowName}/1st_comp.csv")
+outputCsvFilename <- glue("/tmp/pc1.csv")
+rotation$PC1 <- round(rotation$PC1, digits = 5)
+print(glue("we are writing the PC1 to {filename}"))
+write.csv(file = outputCsvFilename, x = rotation$PC1, quote = F, row.names = F)
 
+# ------------------------------
+# plot output to png
+# ------------------------------
+outputPngFilename <- glue("/home/fchern/test/{branchName}/{tagName}/{basketName}/{windowName}/1st_comp.png")
 #todo: replace the filename
 png("first_component_loading.png")
 barplot(rotationMatrix[,"PC1"], las=2,  main = glue("1st principal component of basket {basketName}"), font.main = 4, horiz=TRUE)

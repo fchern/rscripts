@@ -27,8 +27,8 @@ args <- parser$parse_args()
 
 # print some progress messages to stderr if "quietly" wasn't requested
 if ( args$verbose ) { 
-    write("Maybe i am", stderr())
-    write("writing some verbose output to standard error...\n", stderr()) 
+	write("Maybe i am", stderr())
+	write("writing some verbose output to standard error...\n", stderr()) 
 }
 
 # do some operations based on user input
@@ -39,7 +39,7 @@ if ( args$verbose ) {
 #}
 
 if (args$keep < 0.3){
-    print("the ratio you keep is too small")
+	print("the ratio you keep is too small")
 }
 
 branchName <- args$branch
@@ -72,12 +72,12 @@ dimToKeep = round(numCol/args$keep)
 
 # ++++++ make sure the input data is already scaled! +++++++
 pca <- nsprcomp(MASS::Boston,
-                           k = c(dimToKeep,4, 2, 2), 
-                           nneg = TRUE, 
-                           scale. = FALSE, 
-                           nrestart = 10, 
-                           em_tol = 1e-4, 
-                           verbosity = 1)
+		k = c(dimToKeep,4, 2, 2), 
+		nneg = TRUE, 
+		scale. = FALSE, 
+		nrestart = 10, 
+		em_tol = 1e-4, 
+		verbosity = 1)
 
 rotationMatrix = pca$rotation
 
